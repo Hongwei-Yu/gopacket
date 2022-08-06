@@ -22,16 +22,21 @@ import (
 	"golang.org/x/sys/windows"
 )
 
+// pcaploaded是
 var pcapLoaded = false
 
+// npcap地址
 const npcapPath = "\\Npcap"
 
+// 初始化DLL地址
 func initDllPath(kernel32 syscall.Handle) {
+	// 从kernel32.dll中导出SetDllDirectoryA函数
 	setDllDirectory, err := syscall.GetProcAddress(kernel32, "SetDllDirectoryA")
 	if err != nil {
 		// we can't do anything since SetDllDirectoryA is missing - fall back to use first wpcap.dll we encounter
 		return
 	}
+	// 从kernel32.dll导出GetSystemDirectoryA函数
 	getSystemDirectory, err := syscall.GetProcAddress(kernel32, "GetSystemDirectoryA")
 	if err != nil {
 		// we can't do anything since SetDllDirectoryA is missing - fall back to use first wpcap.dll we encounter
@@ -51,6 +56,7 @@ func initDllPath(kernel32 syscall.Handle) {
 // loadedDllPath will hold the full pathname of the loaded wpcap.dll after init if possible
 var loadedDllPath = "wpcap.dll"
 
+// 初始化导入DLL地址
 func initLoadedDllPath(kernel32 syscall.Handle) {
 	getModuleFileName, err := syscall.GetProcAddress(kernel32, "GetModuleFileNameA")
 	if err != nil {
@@ -58,11 +64,13 @@ func initLoadedDllPath(kernel32 syscall.Handle) {
 		return
 	}
 	buf := make([]byte, 4096)
+	// 获取wpcap地址长度
 	r, _, _ := syscall.Syscall(getModuleFileName, 3, uintptr(wpcapHandle), uintptr(unsafe.Pointer(&buf[0])), uintptr(len(buf)))
 	if r == 0 {
 		// we can't get the filename of the loaded module in this case - just leave default of wpcap.dll
 		return
 	}
+	// 设置 dll 地址
 	loadedDllPath = string(buf[:int(r)])
 }
 
@@ -159,6 +167,7 @@ func init() {
 }
 
 // LoadWinPCAP attempts to dynamically load the wpcap DLL and resolve necessary functions
+// 动态导入wpcap.dll库
 func LoadWinPCAP() error {
 	if pcapLoaded {
 		return nil
@@ -168,8 +177,10 @@ func LoadWinPCAP() error {
 	if err != nil {
 		return fmt.Errorf("couldn't load kernel32.dll")
 	}
+	//延迟释放kernel32.dll
 	defer syscall.FreeLibrary(kernel32)
 
+	//设置路径为npcap所在路径
 	initDllPath(kernel32)
 
 	if haveSearch, _ := syscall.GetProcAddress(kernel32, "AddDllDirectory"); haveSearch != 0 {
@@ -189,10 +200,12 @@ func LoadWinPCAP() error {
 		}
 	}
 	initLoadedDllPath(kernel32)
+	// 导入 msvcrt 动态库
 	msvcrtHandle, err = syscall.LoadLibrary("msvcrt.dll")
 	if err != nil {
 		return fmt.Errorf("couldn't load msvcrt.dll")
 	}
+	// 引入calloc函数
 	callocPtr, err = syscall.GetProcAddress(msvcrtHandle, "calloc")
 	if err != nil {
 		return fmt.Errorf("couldn't get calloc function")
