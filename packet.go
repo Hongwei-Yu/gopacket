@@ -77,12 +77,16 @@ type Packet interface {
 	//// Functions for accessing specific types of packet layers.  These functions
 	//// return the first layer of each type found within the packet.
 	//// ------------------------------------------------------------------
+	// 返回第一个链路层
 	// LinkLayer returns the first link layer in the packet
 	LinkLayer() LinkLayer
+	// 返回第一个网络层
 	// NetworkLayer returns the first network layer in the packet
 	NetworkLayer() NetworkLayer
+	// 返回第一个传输层
 	// TransportLayer returns the first transport layer in the packet
 	TransportLayer() TransportLayer
+	// 返回第一个应用层
 	// ApplicationLayer returns the first application layer in the packet
 	ApplicationLayer() ApplicationLayer
 	// ErrorLayer is particularly useful, since it returns nil if the packet

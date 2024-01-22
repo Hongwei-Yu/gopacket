@@ -211,9 +211,13 @@ func LoadWinPCAP() error {
 		return fmt.Errorf("couldn't get calloc function")
 	}
 
+	// It returns an error message string corresponding to error.
 	pcapStrerrorPtr = mustLoad("pcap_strerror")
+	// get a string for an error or warning status code
 	pcapStatustostrPtr = mightLoad("pcap_statustostr") // not available on winpcap
+	// get a handle for a live capture
 	pcapOpenLivePtr = mustLoad("pcap_open_live")
+	//
 	pcapOpenOfflinePtr = mustLoad("pcap_open_offline")
 	pcapClosePtr = mustLoad("pcap_close")
 	pcapGeterrPtr = mustLoad("pcap_geterr")

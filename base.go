@@ -17,6 +17,7 @@ import (
 // they may then use a type assertion to get the actual layer type for deep
 // inspection of the data.
 type Layer interface {
+
 	// LayerType is the gopacket type for this layer.
 	LayerType() LayerType
 	// LayerContents returns the set of bytes that make up this layer.
