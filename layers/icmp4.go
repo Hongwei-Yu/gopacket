@@ -16,6 +16,7 @@ import (
 	"github.com/google/gopacket"
 )
 
+// 定义ICMP报文
 const (
 	ICMPv4TypeEchoReply              = 0
 	ICMPv4TypeDestinationUnreachable = 3
@@ -219,12 +220,16 @@ func (i *ICMPv4) LayerType() gopacket.LayerType { return LayerTypeICMPv4 }
 
 // DecodeFromBytes decodes the given bytes into this layer.
 func (i *ICMPv4) DecodeFromBytes(data []byte, df gopacket.DecodeFeedback) error {
+	// 少于8字节判断为不完整
 	if len(data) < 8 {
 		df.SetTruncated()
 		return errors.New("ICMP layer less then 8 bytes for ICMPv4 packet")
 	}
+	// icmp4数据包的 类型和代码
 	i.TypeCode = CreateICMPv4TypeCode(data[0], data[1])
+	// icmp4数据包的校验和
 	i.Checksum = binary.BigEndian.Uint16(data[2:4])
+	// icmp4
 	i.Id = binary.BigEndian.Uint16(data[4:6])
 	i.Seq = binary.BigEndian.Uint16(data[6:8])
 	i.BaseLayer = BaseLayer{data[:8], data[8:]}

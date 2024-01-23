@@ -24,15 +24,23 @@ const (
 // ARP is a ARP packet header.
 type ARP struct {
 	BaseLayer
-	AddrType          LinkType
-	Protocol          EthernetType
-	HwAddressSize     uint8
-	ProtAddressSize   uint8
-	Operation         uint16
-	SourceHwAddress   []byte
+
+	AddrType LinkType
+	Protocol EthernetType
+	// 硬件地址长度
+	HwAddressSize uint8
+	// 协议地址长度
+	ProtAddressSize uint8
+	// 操作
+	Operation uint16
+	// 源站硬件地址
+	SourceHwAddress []byte
+	// 源站IP地址
 	SourceProtAddress []byte
-	DstHwAddress      []byte
-	DstProtAddress    []byte
+	// 目的站硬件地址
+	DstHwAddress []byte
+	// 目的站IP地址
+	DstProtAddress []byte
 }
 
 // LayerType returns LayerTypeARP
