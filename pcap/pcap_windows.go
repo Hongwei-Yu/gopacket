@@ -169,10 +169,11 @@ func init() {
 // LoadWinPCAP attempts to dynamically load the wpcap DLL and resolve necessary functions
 // 动态导入wpcap.dll库
 func LoadWinPCAP() error {
+	// 首先通过pcapLoaded变量来判断winpcap是否导入过，pcapLoaded变量初始化时为bool
 	if pcapLoaded {
 		return nil
 	}
-
+	// syscall.LoadLibrary 来导入kernel32.dll
 	kernel32, err := syscall.LoadLibrary("kernel32.dll")
 	if err != nil {
 		return fmt.Errorf("couldn't load kernel32.dll")
@@ -182,8 +183,9 @@ func LoadWinPCAP() error {
 
 	//设置路径为npcap所在路径
 	initDllPath(kernel32)
-
+	// 使用syscall.GetProcAddress来获取kernel32中的AddDllDirectory函数
 	if haveSearch, _ := syscall.GetProcAddress(kernel32, "AddDllDirectory"); haveSearch != 0 {
+		// 如果存在 AddDllDirectory，我们可以将 LOAD_LIBRARY_* 的东西与 LoadLibraryEx 一起使用，以避免 wpcap .dll劫持
 		// if AddDllDirectory is present, we can use LOAD_LIBRARY_* stuff with LoadLibraryEx to avoid wpcap.dll hijacking
 		// see: https://msdn.microsoft.com/en-us/library/ff919712%28VS.85%29.aspx
 		const LOAD_LIBRARY_SEARCH_USER_DIRS = 0x00000400
@@ -194,6 +196,7 @@ func LoadWinPCAP() error {
 		}
 	} else {
 		// otherwise fall back to load it with the unsafe search cause by SetDllDirectory
+		// 否则回退以使用 SetDllDirectory 导致的不安全搜索加载它
 		wpcapHandle, err = windows.LoadLibrary("wpcap.dll")
 		if err != nil {
 			return fmt.Errorf("couldn't load wpcap.dll")

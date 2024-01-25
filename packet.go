@@ -21,6 +21,7 @@ import (
 	"time"
 )
 
+// CaptureInfo 提供有关捕获的数据包的标准化信息 连线或从文件中读取。
 // CaptureInfo provides standardized information about a packet captured off
 // the wire or read from a file.
 type CaptureInfo struct {
@@ -39,9 +40,17 @@ type CaptureInfo struct {
 	AncillaryData []interface{}
 }
 
+// PacketMetadata包含数据报的metadata
 // PacketMetadata contains metadata for a packet.
 type PacketMetadata struct {
 	CaptureInfo
+
+	//	如果数据包解码逻辑检测到数据包解码较少，则截断为 true
+	//	数据包中的字节数在各种标头中详细说明（例如，如果
+	//	IPv4 内容/有效负载中的字节数小于 IPv4.Length）。
+	//	如果出现以下情况，也会为从线路捕获的数据包自动设置此值
+	//	CaptureInfo.CaptureLength < CaptureInfo.Length。
+
 	// Truncated is true if packet decoding logic detects that there are fewer
 	// bytes in the packet than are detailed in various headers (for example, if
 	// the number of bytes in the IPv4 contents/payload is less than IPv4.Length).
